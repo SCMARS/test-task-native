@@ -11,166 +11,124 @@ import {
   Timestamp,
   serverTimestamp,
   getDoc,
-  Firestore
+  Firestore,
+  QueryConstraint,
+  startAt,
+  endAt
 } from 'firebase/firestore';
 import { db, auth } from '../config/firebase';
 import { Expense } from '../types/expense';
 
 const firestore = db;
 
-export const getExpenses = async (): Promise<Expense[]> => {
-  const user = auth.currentUser;
-  if (!user) {
-    console.log('No authenticated user found');
-    throw new Error('User not authenticated');
+export const getExpenses = async (
+  userId: string,
+  filters?: {
+    startDate?: Date;
+    endDate?: Date;
+    category?: string;
   }
-
-  console.log('Getting expenses for user:', user.uid);
-
+): Promise<Expense[]> => {
   try {
-    const expensesCollection = collection(firestore, 'expenses');
-    const q = query(
-      expensesCollection,
-      where('userId', '==', user.uid),
+    const expensesRef = collection(db, 'expenses');
+    const constraints: QueryConstraint[] = [
+      where('userId', '==', userId),
       orderBy('date', 'desc')
-    );
+    ];
 
-    console.log('Executing query...');
+    // Добавляем фильтры по дате, если они указаны
+    if (filters?.startDate) {
+      constraints.push(where('date', '>=', Timestamp.fromDate(filters.startDate)));
+    }
+    if (filters?.endDate) {
+      constraints.push(where('date', '<=', Timestamp.fromDate(filters.endDate)));
+    }
+    // Добавляем фильтр по категории, если она указана
+    if (filters?.category) {
+      constraints.push(where('category', '==', filters.category));
+    }
+
+    const q = query(expensesRef, ...constraints);
     const querySnapshot = await getDocs(q);
-    console.log('Query completed, documents:', querySnapshot.size);
-
-    return querySnapshot.docs.map((doc) => {
-      const data = doc.data();
-      if (!data) {
-        console.warn('Document has no data:', doc.id);
-        return null;
-      }
-
-      try {
-        return {
-          id: doc.id,
-          userId: data.userId || user.uid,
-          title: data.title || '',
-          amount: data.amount || 0,
-          category: data.category || 'Other',
-          date: data.date?.toDate() || new Date(),
-          account: data.account || 'USD',
-          description: data.description || '',
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-        } as Expense;
-      } catch (error) {
-        console.error('Error processing document:', doc.id, error);
-        return null;
-      }
-    }).filter((expense): expense is Expense => expense !== null);
-  } catch (error) {
-    console.error("Error getting expenses:", error);
-    throw error;
-  }
-};
-
-export const addExpense = async (expense: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<void> => {
-  const user = auth.currentUser;
-  if (!user) {
-    console.log('No authenticated user found');
-    throw new Error('User not authenticated');
-  }
-
-  console.log('Adding expense for user:', user.uid);
-
-  try {
-    if (!expense.title || !expense.amount || !expense.category) {
-      throw new Error('Missing required fields');
-    }
-
-    const dateTimestamp = expense.date instanceof Date
-      ? Timestamp.fromDate(expense.date)
-      : Timestamp.fromDate(new Date(expense.date));
-
-    const newExpense = {
-      ...expense,
-      userId: user.uid,
-      date: dateTimestamp,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    };
-
-    console.log('New expense data:', newExpense);
-
-    const expensesCollection = collection(firestore, 'expenses');
-    const docRef = await addDoc(expensesCollection, newExpense);
-    console.log('Expense added with ID:', docRef.id);
-  } catch (error) {
-    console.error("Error adding expense:", error);
-    throw error;
-  }
-};
-
-export const updateExpense = async (id: string, expense: Partial<Expense>): Promise<void> => {
-  const user = auth.currentUser;
-  if (!user) {
-    console.log('No authenticated user found');
-    throw new Error('User not authenticated');
-  }
-
-  console.log('Updating expense for user:', user.uid);
-
-  try {
-    const expenseRef = doc(firestore, 'expenses', id);
-    const expenseDoc = await getDoc(expenseRef);
     
-    if (!expenseDoc.exists()) {
-      throw new Error('Expense not found');
-    }
-
-    const expenseData = expenseDoc.data();
-    if (expenseData.userId !== user.uid) {
-      throw new Error('Unauthorized to update this expense');
-    }
-
-    const updateData: any = { ...expense, updatedAt: serverTimestamp() };
-
-    if (expense.date) {
-      updateData.date = expense.date instanceof Date
-        ? Timestamp.fromDate(expense.date)
-        : Timestamp.fromDate(new Date(expense.date));
-    }
-
-    await updateDoc(expenseRef, updateData);
-    console.log('Expense updated successfully');
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      date: doc.data().date.toDate(),
+      createdAt: doc.data().createdAt.toDate(),
+      updatedAt: doc.data().updatedAt.toDate(),
+    })) as Expense[];
   } catch (error) {
-    console.error("Error updating expense:", error);
+    console.error('Error getting expenses:', error);
     throw error;
   }
 };
 
-export const deleteExpense = async (id: string): Promise<void> => {
-  const user = auth.currentUser;
-  if (!user) {
-    console.log('No authenticated user found');
-    throw new Error('User not authenticated');
-  }
-
-  console.log('Deleting expense for user:', user.uid);
-
+export const addExpense = async (userId: string, expense: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<string> => {
   try {
-    const expenseRef = doc(firestore, 'expenses', id);
-    const expenseDoc = await getDoc(expenseRef);
+    const expensesRef = collection(db, 'expenses');
+    const now = Timestamp.now();
     
-    if (!expenseDoc.exists()) {
-      throw new Error('Expense not found');
-    }
+    // Удаляем undefined значения и преобразуем пустые строки в null
+    const expenseData = Object.entries(expense).reduce((acc, [key, value]) => {
+      if (value !== undefined) {
+        if (key === 'date' && value instanceof Date) {
+          acc[key] = Timestamp.fromDate(value);
+        } else if (key === 'description' && value === '') {
+          acc[key] = null;
+        } else {
+          acc[key] = value;
+        }
+      }
+      return acc;
+    }, {} as Record<string, any>);
 
-    const expenseData = expenseDoc.data();
-    if (expenseData.userId !== user.uid) {
-      throw new Error('Unauthorized to delete this expense');
-    }
+    const docRef = await addDoc(expensesRef, {
+      ...expenseData,
+      userId,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding expense:', error);
+    throw error;
+  }
+};
 
+export const updateExpense = async (expenseId: string, expense: Partial<Expense>): Promise<void> => {
+  try {
+    const expenseRef = doc(db, 'expenses', expenseId);
+    
+    // Remove undefined values from the update object
+    const updateData = Object.entries(expense).reduce((acc, [key, value]) => {
+      if (value !== undefined) {
+        // Преобразуем дату в Timestamp, если это поле date
+        if (key === 'date' && value instanceof Date) {
+          acc[key] = Timestamp.fromDate(value);
+        } else {
+          acc[key] = value;
+        }
+      }
+      return acc;
+    }, {} as Record<string, any>);
+
+    await updateDoc(expenseRef, {
+      ...updateData,
+      updatedAt: Timestamp.now(),
+    });
+  } catch (error) {
+    console.error('Error updating expense:', error);
+    throw error;
+  }
+};
+
+export const deleteExpense = async (expenseId: string): Promise<void> => {
+  try {
+    const expenseRef = doc(db, 'expenses', expenseId);
     await deleteDoc(expenseRef);
-    console.log('Expense deleted successfully');
   } catch (error) {
-    console.error("Error deleting expense:", error);
+    console.error('Error deleting expense:', error);
     throw error;
   }
 };

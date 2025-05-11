@@ -7,18 +7,18 @@ import { useStore } from '../store/useStore';
 import { Card } from '../components/ui/Card';
 import { Ionicons } from '@expo/vector-icons';
 import { ReactNode } from 'react';
+import { MainTabScreenProps } from '../types/navigation';
 
-const ProfileScreen = () => {
-  const { user } = useStore();
+export const ProfileScreen: React.FC<MainTabScreenProps<'Profile'>> = () => {
+  const user = useStore((state) => state.user);
+  const setUser = useStore((state) => state.setUser);
 
   const handleSignOut = async () => {
     try {
-      console.log('Signing out...');
       await auth.signOut();
-      console.log('Sign out successful');
+      setUser(null);
     } catch (error) {
-      console.error('Failed to sign out:', error);
-      Alert.alert('Error', 'Failed to sign out');
+      console.error('Error signing out:', error);
     }
   };
 
@@ -39,69 +39,69 @@ const ProfileScreen = () => {
   };
 
   return (
-      <ScrollView style={styles.container}>
-        {/* Header with gradient background */}
-        <View style={styles.header}>
-          <Avatar.Text
-              size={80}
-              label={avatarText}
-              style={styles.avatar}
-              labelStyle={styles.avatarText}
-              color="#FFFFFF"
-          />
-          <Text style={styles.userName}>{user.displayName || user.email}</Text>
-          <Text style={styles.userRole}>Personal Account</Text>
-        </View>
+    <ScrollView style={styles.container}>
+      {/* Header with gradient background */}
+      <View style={styles.header}>
+        <Avatar.Text
+            size={80}
+            label={avatarText}
+            style={styles.avatar}
+            labelStyle={styles.avatarText}
+            color="#FFFFFF"
+        />
+        <Text style={styles.userName}>{user.displayName || user.email}</Text>
+        <Text style={styles.userRole}>Personal Account</Text>
+      </View>
 
-        <View style={styles.content}>
-          {/* Account Information Card */}
-          <Card style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Ionicons name="person-circle-outline" size={22} color="#5B5B5B" />
-              <Text style={styles.cardTitle}>Account Information</Text>
+      <View style={styles.content}>
+        {/* Account Information Card */}
+        <Card style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Ionicons name="person-circle-outline" size={22} color="#5B5B5B" />
+            <Text style={styles.cardTitle}>Account Information</Text>
+          </View>
+          <Divider style={styles.divider} />
+
+          <View style={styles.infoItem}>
+            <Text style={styles.label}>Email</Text>
+            <Text style={styles.value}>{user.email}</Text>
+          </View>
+
+          <View style={styles.infoItem}>
+            <Text style={styles.label}>Account Created</Text>
+            <Text style={styles.value}>
+              {formatDate(user.metadata?.creationTime)}
+            </Text>
+          </View>
+
+          <View style={styles.infoItem}>
+            <Text style={styles.label}>Last Sign In</Text>
+            <Text style={styles.value}>
+              {formatDate(user.metadata?.lastSignInTime)}
+            </Text>
+          </View>
+
+          <View style={styles.infoItem}>
+            <Text style={styles.label}>Account Status</Text>
+            <View style={styles.statusContainer}>
+              <View style={styles.statusDot} />
+              <Text style={styles.statusText}>Active</Text>
             </View>
-            <Divider style={styles.divider} />
+          </View>
+        </Card>
 
-            <View style={styles.infoItem}>
-              <Text style={styles.label}>Email</Text>
-              <Text style={styles.value}>{user.email}</Text>
-            </View>
-
-            <View style={styles.infoItem}>
-              <Text style={styles.label}>Account Created</Text>
-              <Text style={styles.value}>
-                {formatDate(user.metadata?.creationTime)}
-              </Text>
-            </View>
-
-            <View style={styles.infoItem}>
-              <Text style={styles.label}>Last Sign In</Text>
-              <Text style={styles.value}>
-                {formatDate(user.metadata?.lastSignInTime)}
-              </Text>
-            </View>
-
-            <View style={styles.infoItem}>
-              <Text style={styles.label}>Account Status</Text>
-              <View style={styles.statusContainer}>
-                <View style={styles.statusDot} />
-                <Text style={styles.statusText}>Active</Text>
-              </View>
-            </View>
-          </Card>
-
-          <Button
-              mode="outlined"
-              onPress={handleSignOut}
-              icon="logout"
-              style={styles.signOutButton}
-              textColor="#FF5252"
-              contentStyle={styles.signOutButtonContent}
-          >
-            Sign Out
-          </Button>
-        </View>
-      </ScrollView>
+        <Button
+            mode="outlined"
+            onPress={handleSignOut}
+            icon="logout"
+            style={styles.signOutButton}
+            textColor="#FF5252"
+            contentStyle={styles.signOutButtonContent}
+        >
+          Sign Out
+        </Button>
+      </View>
+    </ScrollView>
   );
 };
 
@@ -211,5 +211,3 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
 });
-
-export default ProfileScreen;

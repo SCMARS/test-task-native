@@ -5,8 +5,7 @@ export type Currency = 'USD' | 'UAH' | 'EUR';
 export type Category = {
   id: string;
   name: string;
-  icon: string;
-  color: string;
+  icon?: string;
 };
 
 export interface Expense {
@@ -24,21 +23,23 @@ export interface Expense {
 
 export type Account = {
   id: string;
-  userId: string;
   name: string;
-  currency: Currency;
+  currency: string;
   balance: number;
-  createdAt: Date;
-  updatedAt: Date;
 };
 
 export const DEFAULT_CATEGORIES: Category[] = [
-  { id: '1', name: 'Food', icon: 'food', color: '#FF6B6B' },
-  { id: '2', name: 'Transport', icon: 'car', color: '#4ECDC4' },
-  { id: '3', name: 'Bills', icon: 'file-document', color: '#45B7D1' },
-  { id: '4', name: 'Shopping', icon: 'shopping', color: '#96CEB4' },
-  { id: '5', name: 'Entertainment', icon: 'movie', color: '#FFEEAD' },
-  { id: '6', name: 'Health', icon: 'medical-bag', color: '#D4EE9F' },
-  { id: '7', name: 'Education', icon: 'school', color: '#FFD93D' },
-  { id: '8', name: 'Other', icon: 'dots-horizontal', color: '#95A5A6' }
+  { id: 'food', name: 'Food' },
+  { id: 'transport', name: 'Transport' },
+  { id: 'bills', name: 'Bills' },
+  { id: 'entertainment', name: 'Entertainment' },
+  { id: 'shopping', name: 'Shopping' },
+  { id: 'health', name: 'Health' },
+  { id: 'other', name: 'Other' },
+];
+
+export const DEFAULT_ACCOUNTS: Account[] = [
+  { id: 'usd', name: 'USD Account', currency: 'USD', balance: 0 },
+  { id: 'uah', name: 'UAH Account', currency: 'UAH', balance: 0 },
+  { id: 'eur', name: 'EUR Account', currency: 'EUR', balance: 0 },
 ]; 

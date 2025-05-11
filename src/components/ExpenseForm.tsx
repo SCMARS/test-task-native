@@ -1,22 +1,34 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { TextInput, Button, HelperText } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { TextInput, Button, HelperText, Menu } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Expense } from '../types/expense';
-
-const CATEGORIES = ['Food', 'Transport', 'Bills', 'Entertainment', 'Other'];
-const ACCOUNTS = ['USD', 'UAH', 'EUR'];
+import { format } from 'date-fns';
+import { DEFAULT_CATEGORIES, DEFAULT_ACCOUNTS } from '../types/expense';
 
 interface ExpenseFormProps {
-  onSubmit: (expense: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  initialValues?: Expense;
+  initialValues?: {
+    title: string;
+    amount: number;
+    category: string;
+    date: Date;
+    account: string;
+    description?: string;
+  };
+  onSubmit: (values: {
+    title: string;
+    amount: number;
+    category: string;
+    date: Date;
+    account: string;
+    description?: string;
+  }) => void;
   isLoading?: boolean;
 }
 
 export const ExpenseForm: React.FC<ExpenseFormProps> = ({
-  onSubmit,
   initialValues,
-  isLoading
+  onSubmit,
+  isLoading = false,
 }) => {
   const [title, setTitle] = useState(initialValues?.title || '');
   const [amount, setAmount] = useState(initialValues?.amount?.toString() || '');
@@ -58,7 +70,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
         category,
         date,
         account,
-        description: description.trim()
+        description: description.trim() || undefined
       });
     } catch (error) {
       console.error('Failed to submit expense:', error);
