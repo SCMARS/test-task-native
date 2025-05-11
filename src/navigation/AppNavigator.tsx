@@ -17,80 +17,80 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 type TabBarIconProps = {
-  focused: boolean;
-  color: string;
-  size: number;
+    focused: boolean;
+    color: string;
+    size: number;
 };
 
 const TabNavigator = () => {
-  return (
-    <Tab.Navigator
-      screenOptions={({ route }: { route: RouteProp<MainTabParamList, keyof MainTabParamList> }) => ({
-        tabBarIcon: ({ focused, color, size }: TabBarIconProps) => {
-          let iconName: keyof typeof Ionicons.glyphMap = 'help-circle';
+    return (
+        <Tab.Navigator
+            screenOptions={({ route }: { route: RouteProp<MainTabParamList, keyof MainTabParamList> }) => ({
+                tabBarIcon: ({ focused, color, size }: TabBarIconProps) => {
+                    let iconName: keyof typeof Ionicons.glyphMap = 'help-circle';
 
-          if (route.name === 'ExpensesList') {
-            iconName = focused ? 'list' : 'list-outline';
-          } else if (route.name === 'ExpenseForm') {
-            iconName = focused ? 'add-circle' : 'add-circle-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          }
+                    if (route.name === 'ExpensesList') {
+                        iconName = focused ? 'list' : 'list-outline';
+                    } else if (route.name === 'ExpenseForm') {
+                        iconName = focused ? 'add-circle' : 'add-circle-outline';
+                    } else if (route.name === 'Profile') {
+                        iconName = focused ? 'person' : 'person-outline';
+                    }
 
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: '#8E8E93'
-      })}
-    >
-      <Tab.Screen
-        name="ExpensesList"
-        component={ExpensesListScreen}
-        options={{
-          title: 'Expenses',
-          headerShown: true
-        }}
-      />
-      <Tab.Screen
-        name="ExpenseForm"
-        component={ExpenseFormScreen}
-        options={{
-          title: 'Add Expense',
-          headerShown: true
-        }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          title: 'Profile',
-          headerShown: true
-        }}
-      />
-    </Tab.Navigator>
-  );
+                    return <Ionicons name={iconName} size={size} color={color} />;
+                },
+                tabBarActiveTintColor: '#007AFF',
+                tabBarInactiveTintColor: '#8E8E93'
+            })}
+        >
+            <Tab.Screen
+                name="ExpensesList"
+                component={ExpensesListScreen}
+                options={{
+                    title: 'Expenses',
+                    headerShown: true
+                }}
+            />
+            <Tab.Screen
+                name="ExpenseForm"
+                component={ExpenseFormScreen}
+                options={{
+                    title: 'Add Expense',
+                    headerShown: true
+                }}
+            />
+            <Tab.Screen
+                name="Profile"
+                component={ProfileScreen}
+                options={{
+                    title: 'Profile',
+                    headerShown: true
+                }}
+            />
+        </Tab.Navigator>
+    );
 };
 
 export const AppNavigator = () => {
-  const { user, setUser } = useStore();
+    const { user, setUser } = useStore();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setUser(user);
+        });
 
-    return () => unsubscribe();
-  }, [setUser]);
+        return () => unsubscribe();
+    }, [setUser]);
 
-  return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {user ? (
-          <Stack.Screen name="Main" component={TabNavigator} />
-        ) : (
-          <Stack.Screen name="Auth" component={AuthNavigator} />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-}; 
+    return (
+
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+                {user ? (
+                    <Stack.Screen name="Main" component={TabNavigator} />
+                ) : (
+                    <Stack.Screen name="Auth" component={AuthNavigator} />
+                )}
+            </Stack.Navigator>
+
+    );
+};

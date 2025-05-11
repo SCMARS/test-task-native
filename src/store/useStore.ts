@@ -67,6 +67,7 @@ export const useStore = create<State>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const expenses = await getExpenses();
+      console.log(expenses);
       set({ expenses, isLoading: false });
     } catch (error: any) {
       set({ error: error.message, isLoading: false });

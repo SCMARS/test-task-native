@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text } from 'react-native-paper';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, Surface, Divider, TextInput } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Input } from './ui/Input';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
-import { Expense, Category, Currency, DEFAULT_CATEGORIES } from '../types/expense';
+import { Expense, Category, DEFAULT_CATEGORIES } from '../types/expense';
 import { format } from 'date-fns';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface ExpenseFormProps {
   onSubmit: (expense: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => Promise<void>;
@@ -15,10 +15,10 @@ interface ExpenseFormProps {
 }
 
 export const ExpenseForm = ({
-  onSubmit,
-  initialValues,
-  isLoading = false,
-}: ExpenseFormProps) => {
+                              onSubmit,
+                              initialValues,
+                              isLoading = false,
+                            }: ExpenseFormProps) => {
   const [title, setTitle] = useState(initialValues?.title || '');
   const [amount, setAmount] = useState(initialValues?.amount?.toString() || '');
   const [category, setCategory] = useState<Category>(DEFAULT_CATEGORIES[0]);
@@ -61,72 +61,175 @@ export const ExpenseForm = ({
   };
 
   return (
-    <Card style={styles.container}>
-      <Input
-        label="Title"
-        value={title}
-        onChangeText={setTitle}
-        error={!!errors.title}
-        helperText={errors.title}
-        autoCapitalize="sentences"
-        autoCorrect={true}
-      />
+      <Card style={styles.container}>
+        <Text style={styles.formTitle}>
+          {initialValues ? 'Update Expense' : 'New Expense'}
+        </Text>
+        <Divider style={styles.divider} />
 
-      <Input
-        label="Amount"
-        value={amount}
-        onChangeText={setAmount}
-        keyboardType="numeric"
-        error={!!errors.amount}
-        helperText={errors.amount}
-      />
+        {/* Title */}
+        <View style={styles.row}>
+          <View style={styles.iconContainer}>
+            <MaterialCommunityIcons name="tag-outline" size={24} color="#6200ee" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <TextInput
+                label="Title"
+                value={title}
+                onChangeText={setTitle}
+                mode="outlined"
+                error={!!errors.title}
+                style={styles.input}
+                theme={{ colors: { text: '#000', primary: '#6200ee' } }}
+            />
+            {errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
+          </View>
+        </View>
 
-      <Input
-        label="Account"
-        value={account}
-        onChangeText={setAccount}
-      />
+        {/* Amount */}
+        <View style={styles.row}>
+          <View style={styles.iconContainer}>
+            <MaterialCommunityIcons name="currency-usd" size={24} color="#6200ee" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <TextInput
+                label="Amount"
+                value={amount}
+                onChangeText={setAmount}
+                keyboardType="numeric"
+                mode="outlined"
+                error={!!errors.amount}
+                style={styles.input}
+                theme={{ colors: { text: '#000', primary: '#6200ee' } }}
+            />
+            {errors.amount && <Text style={styles.errorText}>{errors.amount}</Text>}
+          </View>
+        </View>
 
-      <Button
-        mode="outlined"
-        onPress={() => setShowDatePicker(true)}
-        icon="calendar"
-      >
-        {format(date, 'PPP')}
-      </Button>
+        {/* Account */}
+        <View style={styles.row}>
+          <View style={styles.iconContainer}>
+            <MaterialCommunityIcons name="wallet-outline" size={24} color="#6200ee" />
+          </View>
+          <TextInput
+              label="Account"
+              value={account}
+              onChangeText={setAccount}
+              mode="outlined"
+              style={styles.input}
+              theme={{ colors: { text: '#000', primary: '#6200ee' } }}
+          />
+        </View>
 
-      {showDatePicker && (
-        <DateTimePicker
-          value={date}
-          mode="date"
-          display="default"
-          onChange={(event, selectedDate) => {
-            setShowDatePicker(false);
-            if (selectedDate) {
-              setDate(selectedDate);
-            }
-          }}
-        />
-      )}
+        {/* Date Picker */}
+        <View style={styles.row}>
+          <View style={styles.iconContainer}>
+            <MaterialCommunityIcons name="calendar-outline" size={24} color="#6200ee" />
+          </View>
+          <TouchableOpacity
+              style={styles.datePickerButton}
+              onPress={() => setShowDatePicker(true)}
+          >
+            <Text style={styles.dateText}>Date</Text>
+            <Text style={styles.dateValue}>{format(date, 'PPP')}</Text>
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.buttonContainer}>
-        <Button
-          onPress={handleSubmit}
-          loading={isLoading}
-          disabled={isLoading}
-        >
-          {initialValues ? 'Update Expense' : 'Add Expense'}
-        </Button>
-      </View>
-    </Card>
+        {showDatePicker && (
+            <DateTimePicker
+                value={date}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  setShowDatePicker(false);
+                  if (selectedDate) {
+                    setDate(selectedDate);
+                  }
+                }}
+            />
+        )}
+
+        <View style={styles.buttonContainer}>
+          <Button
+              onPress={handleSubmit}
+              loading={isLoading}
+              disabled={isLoading}
+              mode="contained"
+              style={styles.submitButton}
+              contentStyle={styles.buttonContent}
+          >
+            {initialValues ? 'Update Expense' : 'Save Expense'}
+          </Button>
+        </View>
+      </Card>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    padding: 20,
+    borderRadius: 12,
+    elevation: 4,
+    backgroundColor: '#ffffff',
+  },
+  formTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#1a1a1a',
+  },
+  divider: {
+    marginBottom: 16,
+    height: 1.5,
+    backgroundColor: '#e0e0e0',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  iconContainer: {
+    width: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    marginRight: 8,
+  },
+  input: {
+    backgroundColor: '#ffffff',
+  },
+  errorText: {
+    color: '#B00020',
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 4,
+  },
+  datePickerButton: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
     padding: 16,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  dateText: {
+    fontSize: 12,
+    color: '#757575',
+    marginBottom: 4,
+  },
+  dateValue: {
+    fontSize: 16,
+    color: '#1a1a1a',
   },
   buttonContainer: {
-    marginTop: 16,
+    marginTop: 24,
   },
-}); 
+  submitButton: {
+    height: 50,
+    borderRadius: 25,
+  },
+  buttonContent: {
+    height: 50,
+    justifyContent: 'center',
+  },
+});

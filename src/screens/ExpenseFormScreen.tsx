@@ -8,7 +8,7 @@ import { Expense } from '../types/expense';
 export const ExpenseFormScreen = ({ route, navigation }: MainTabScreenProps<'ExpenseForm'>) => {
   const { addExpense, updateExpense, expenses, isLoading } = useStore();
   const { mode, expenseId } = route.params;
-  const expense = expenseId ? expenses.find(e => e.id === expenseId) : undefined;
+  const expense  = expenseId ? expenses.find(e => e.id === expenseId) : undefined;
 
   const handleSubmit = async (expenseData: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => {
     try {
@@ -24,13 +24,13 @@ export const ExpenseFormScreen = ({ route, navigation }: MainTabScreenProps<'Exp
   };
 
   return (
-    <View style={styles.container}>
-      <ExpenseForm
-        onSubmit={handleSubmit}
-        initialValues={expense}
-        isLoading={isLoading}
-      />
-    </View>
+      <View style={styles.container}>
+        <ExpenseForm
+            onSubmit={handleSubmit}
+            initialValues={expense}
+            isLoading={isLoading}
+        />
+      </View>
   );
 };
 
@@ -40,4 +40,4 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
   },
-}); 
+});
