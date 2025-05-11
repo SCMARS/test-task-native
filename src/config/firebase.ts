@@ -11,14 +11,15 @@ import { getFirestore, Firestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
+// Используем переменные окружения для конфигурации Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyCM0B7kSOfn-Uj2f2BRCLSYrEzx9l3IYKU",
-  authDomain: "expotest-dc5a1.firebaseapp.com",
-  projectId: "expotest-dc5a1",
-  storageBucket: "expotest-dc5a1.firebasestorage.app",
-  messagingSenderId: "636856157163",
-  appId: "1:636856157163:web:0c5dfcce55830521314fae",
-  measurementId: "G-KS4NWC9FPQ"
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
 // Determine which persistence to use based on platform
