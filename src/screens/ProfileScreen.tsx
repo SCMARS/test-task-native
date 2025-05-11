@@ -1,10 +1,9 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
-import { Text, Avatar, Divider } from 'react-native-paper';
+import { Text, Avatar, Divider, Button } from 'react-native-paper';
 import { signOut } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import { useStore } from '../store/useStore';
-import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Ionicons } from '@expo/vector-icons';
 import { ReactNode } from 'react';
@@ -14,28 +13,9 @@ const ProfileScreen = () => {
 
   const handleSignOut = async () => {
     try {
-      Alert.alert(
-          "Sign Out",
-          "Are you sure you want to sign out?",
-          [
-            {
-              text: "Cancel",
-              style: "cancel"
-            },
-            {
-              text: "Sign Out",
-              onPress: async () => {
-                try {
-                  await signOut(auth);
-                } catch (error) {
-                  console.error('Failed to sign out:', error);
-                  Alert.alert('Error', 'Failed to sign out');
-                }
-              },
-              style: "destructive"
-            }
-          ]
-      );
+      console.log('Signing out...');
+      await auth.signOut();
+      console.log('Sign out successful');
     } catch (error) {
       console.error('Failed to sign out:', error);
       Alert.alert('Error', 'Failed to sign out');
@@ -110,86 +90,12 @@ const ProfileScreen = () => {
             </View>
           </Card>
 
-          {/* Settings Card */}
-          <Card style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Ionicons name="settings-outline" size={22} color="#5B5B5B" />
-              <Text style={styles.cardTitle}>Settings</Text>
-            </View>
-            <Divider style={styles.divider} />
-
-            <TouchableOpacity style={styles.settingItem}>
-              <View style={styles.settingLeft}>
-                <Ionicons name="notifications-outline" size={20} color="#5B5B5B" />
-                <Text style={styles.settingText}>Notifications</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#AAAAAA" />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.settingItem}>
-              <View style={styles.settingLeft}>
-                <Ionicons name="lock-closed-outline" size={20} color="#5B5B5B" />
-                <Text style={styles.settingText}>Change Password</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#AAAAAA" />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.settingItem}>
-              <View style={styles.settingLeft}>
-                <Ionicons name="color-palette-outline" size={20} color="#5B5B5B" />
-                <Text style={styles.settingText}>Appearance</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#AAAAAA" />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.settingItem}>
-              <View style={styles.settingLeft}>
-                <Ionicons name="globe-outline" size={20} color="#5B5B5B" />
-                <Text style={styles.settingText}>Language</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#AAAAAA" />
-            </TouchableOpacity>
-          </Card>
-
-          {/* Support Card */}
-          <Card style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Ionicons name="help-buoy-outline" size={22} color="#5B5B5B" />
-              <Text style={styles.cardTitle}>Support</Text>
-            </View>
-            <Divider style={styles.divider} />
-
-            <TouchableOpacity style={styles.settingItem}>
-              <View style={styles.settingLeft}>
-                <Ionicons name="document-text-outline" size={20} color="#5B5B5B" />
-                <Text style={styles.settingText}>Terms of Service</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#AAAAAA" />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.settingItem}>
-              <View style={styles.settingLeft}>
-                <Ionicons name="shield-checkmark-outline" size={20} color="#5B5B5B" />
-                <Text style={styles.settingText}>Privacy Policy</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#AAAAAA" />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.settingItem}>
-              <View style={styles.settingLeft}>
-                <Ionicons name="mail-outline" size={20} color="#5B5B5B" />
-                <Text style={styles.settingText}>Contact Us</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#AAAAAA" />
-            </TouchableOpacity>
-          </Card>
-
           <Button
               mode="outlined"
               onPress={handleSignOut}
-              icon="log-out-outline"
+              icon="logout"
               style={styles.signOutButton}
-              labelStyle={styles.signOutButtonLabel}
+              textColor="#FF5252"
               contentStyle={styles.signOutButtonContent}
           >
             Sign Out
@@ -288,22 +194,6 @@ const styles = StyleSheet.create({
   statusText: {
     color: '#4CAF50',
     fontWeight: '500',
-  },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-  },
-  settingLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingText: {
-    fontSize: 15,
-    marginLeft: 12,
-    color: '#333333',
   },
   signOutButton: {
     marginTop: 8,

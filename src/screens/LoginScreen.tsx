@@ -16,14 +16,16 @@ import {
 import { useStore } from '../store/useStore';
 import { AuthStackScreenProps } from '../types/navigation';
 import { LinearGradient } from 'expo-linear-gradient';
+import { auth } from '../config/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export const LoginScreen = ({ navigation }: AuthStackScreenProps<'Login'>) => {
 
-const [email, setEmail] = useState('');
-const [password, setPassword] = useState('');
-const [error, setError] = useState('');
-const [isLoading, setIsLoading] = useState(false);
-const { login } = useStore();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const setUser = useStore(state => state.setUser);
 
     const isValidEmail = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -51,7 +53,8 @@ const { login } = useStore();
         setIsLoading(true);
 
         try {
-            await login(email, password);
+            const { user } = await signInWithEmailAndPassword(auth, email, password);
+            setUser(user);
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message);
@@ -122,40 +125,6 @@ const { login } = useStore();
                             disabled={isLoading}
                         >
                             Log In
-                        </Button>
-
-                        <Button
-                            mode="text"
-                            onPress={() => navigation.navigate('SignUp')}
-                            style={styles.forgotPasswordButton}
-                        >
-                            Forgot Password?
-                        </Button>
-
-                        <View style={styles.dividerContainer}>
-                            <View style={styles.divider} />
-                            <Text style={styles.dividerText}>OR</Text>
-                            <View style={styles.divider} />
-                        </View>
-
-                        <Button
-                            mode="outlined"
-                            icon="google"
-                            onPress={() => {}}
-                            style={styles.socialButton}
-                            contentStyle={styles.socialButtonContent}
-                        >
-                            Continue with Google
-                        </Button>
-
-                        <Button
-                            mode="outlined"
-                            icon="apple"
-                            onPress={() => {}}
-                            style={styles.socialButton}
-                            contentStyle={styles.socialButtonContent}
-                        >
-                            Continue with Apple
                         </Button>
 
                         <View style={styles.signUpContainer}>
@@ -231,32 +200,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginBottom: 16,
         textAlign: 'center',
-    },
-    forgotPasswordButton: {
-        alignSelf: 'flex-end',
-        marginTop: 8,
-    },
-    dividerContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginVertical: 20,
-    },
-    divider: {
-        flex: 1,
-        height: 1,
-        backgroundColor: '#E0E0E0',
-    },
-    dividerText: {
-        paddingHorizontal: 10,
-        color: '#757575',
-    },
-    socialButton: {
-        marginVertical: 8,
-        borderRadius: 5,
-        borderColor: '#E0E0E0',
-    },
-    socialButtonContent: {
-        paddingVertical: 8,
     },
     signUpContainer: {
         flexDirection: 'row',

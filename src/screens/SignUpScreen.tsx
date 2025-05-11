@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { View, StyleSheet, Alert, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text } from 'react-native-paper';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebase';
@@ -12,11 +12,9 @@ import { Ionicons } from '@expo/vector-icons';
 export const SignUpScreen = ({ navigation }: AuthStackScreenProps<'SignUp'>) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -31,12 +29,6 @@ export const SignUpScreen = ({ navigation }: AuthStackScreenProps<'SignUp'>) => 
       newErrors.password = 'Password is required';
     } else if (password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
-    }
-
-    if (!confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
     }
 
     setErrors(newErrors);
@@ -69,10 +61,6 @@ export const SignUpScreen = ({ navigation }: AuthStackScreenProps<'SignUp'>) => 
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
-  };
-
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
   };
 
   return (
@@ -134,29 +122,6 @@ export const SignUpScreen = ({ navigation }: AuthStackScreenProps<'SignUp'>) => 
                 </View>
               </View>
 
-              <View style={styles.inputContainer}>
-                <Ionicons name="shield-checkmark-outline" size={22} color="#5E72E4" style={styles.inputIcon} />
-                <View style={styles.passwordContainer}>
-                  <Input
-                      label="Confirm Password"
-                      value={confirmPassword}
-                      onChangeText={setConfirmPassword}
-                      secureTextEntry={!showConfirmPassword}
-                      error={!!errors.confirmPassword}
-                      helperText={errors.confirmPassword}
-                      style={styles.input}
-                      placeholder="Confirm your password"
-                  />
-                  <TouchableOpacity onPress={toggleConfirmPasswordVisibility} style={styles.eyeIconContainer}>
-                    <Ionicons
-                        name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
-                        size={22}
-                        color="#5B5B5B"
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
               <Button
                   onPress={handleSignUp}
                   loading={isLoading}
@@ -166,26 +131,6 @@ export const SignUpScreen = ({ navigation }: AuthStackScreenProps<'SignUp'>) => 
               >
                 Create Account
               </Button>
-
-              <View style={styles.dividerContainer}>
-                <View style={styles.divider} />
-                <Text style={styles.dividerText}>OR</Text>
-                <View style={styles.divider} />
-              </View>
-
-              <View style={styles.socialButtonsContainer}>
-                <TouchableOpacity style={[styles.socialButton, styles.googleButton]}>
-                  <Ionicons name="logo-google" size={22} color="#FFFFFF" />
-                </TouchableOpacity>
-
-                <TouchableOpacity style={[styles.socialButton, styles.appleButton]}>
-                  <Ionicons name="logo-apple" size={22} color="#FFFFFF" />
-                </TouchableOpacity>
-
-                <TouchableOpacity style={[styles.socialButton, styles.facebookButton]}>
-                  <Ionicons name="logo-facebook" size={22} color="#FFFFFF" />
-                </TouchableOpacity>
-              </View>
 
               <TouchableOpacity
                   onPress={() => navigation.navigate('Login')}
@@ -300,46 +245,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 24,
-  },
-  divider: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#E0E0E0',
-  },
-  dividerText: {
-    marginHorizontal: 16,
-    color: '#8898AA',
-    fontWeight: '600',
-  },
-  socialButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 24,
-  },
-  socialButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 10,
-  },
-  googleButton: {
-    backgroundColor: '#DB4437',
-  },
-  appleButton: {
-    backgroundColor: '#000000',
-  },
-  facebookButton: {
-    backgroundColor: '#4267B2',
-  },
   signInLink: {
     alignItems: 'center',
     padding: 8,
+    marginTop: 16,
   },
   signInText: {
     fontSize: 15,

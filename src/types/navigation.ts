@@ -1,6 +1,8 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps } from '@react-navigation/native';
+import { NavigatorScreenParams } from '@react-navigation/native';
+import { Expense } from './expense';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -18,7 +20,7 @@ export type AuthStackParamList = {
 export type MainTabParamList = {
   ExpensesList: undefined;
   ExpenseForm: {
-    mode: 'create' | 'edit';
+    mode: 'add' | 'edit';
     expenseId?: string;
   };
   Profile: undefined;

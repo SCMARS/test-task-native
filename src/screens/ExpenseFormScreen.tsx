@@ -7,8 +7,10 @@ import { Expense } from '../types/expense';
 
 export const ExpenseFormScreen = ({ route, navigation }: MainTabScreenProps<'ExpenseForm'>) => {
   const { addExpense, updateExpense, expenses, isLoading } = useStore();
-  const { mode, expenseId } = route.params;
-  const expense  = expenseId ? expenses.find(e => e.id === expenseId) : undefined;
+
+  // Add null check for route.params and provide default values
+  const { mode = 'add', expenseId } = route.params || {};
+  const expense = expenseId ? expenses.find(e => e.id === expenseId) : undefined;
 
   const handleSubmit = async (expenseData: Omit<Expense, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => {
     try {
