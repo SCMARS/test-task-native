@@ -10,13 +10,13 @@ module.exports = {
     resizeMode: 'contain',
     backgroundColor: '#ffffff'
   },
-  assetBundlePatterns: [
-    '**/*'
-  ],
+  assetBundlePatterns: ['**/*'],
   ios: {
-    supportsTablet: true
+    supportsTablet: true,
+    bundleIdentifier: 'com.gleb.personalexpenses',
   },
   android: {
+    package: 'com.mars_gleb.personalexpensestracker',
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#ffffff'
@@ -25,4 +25,4 @@ module.exports = {
   web: {
     favicon: './assets/favicon.png'
   }
-}; 
+};
